@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.config import settings
 from app.db.base import Base
 
-# 后续添加模型后，在此导入模型以便 Alembic 发现表结构。
-# from app import models  # noqa: F401
+# 导入模型，确保 Alembic 能发现所有表结构。
+from app import models  # noqa: F401
 
 config = context.config
 
