@@ -1,7 +1,7 @@
 """模型公共基建：BaseMixin 与软删除查询辅助。"""
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, DateTime, String
+from sqlalchemy import BigInteger, Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -15,7 +15,11 @@ class BaseMixin:
     """
 
     id: Mapped[int] = mapped_column(
-        BigInteger, primary_key=True, autoincrement=True
+        # SQLite 仅对 INTEGER PRIMARY KEY 自增，BigInteger 不会自增；
+        # 用 with_variant 让 SQLite 退化为 INTEGER，MySQL 仍为 BIGINT。
+        BigInteger().with_variant(Integer(), "sqlite"),
+        primary_key=True,
+        autoincrement=True,
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False

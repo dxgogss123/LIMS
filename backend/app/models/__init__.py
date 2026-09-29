@@ -12,7 +12,7 @@ from app.models.enums import (
 from app.models.image import Image
 from app.models.image_relation import ImageRelation
 from app.models.op_log import OpLog
-from app.models.project import Project, generate_project_no
+from app.models.entrust import Entrust, generate_entrust_no
 from app.models.report import Report
 from app.models.report_template import ReportTemplate
 from app.models.sample import Sample
@@ -32,8 +32,8 @@ __all__ = [
     "Image",
     "ImageRelation",
     "OpLog",
-    "Project",
-    "generate_project_no",
+    "Entrust",
+    "generate_entrust_no",
     "Report",
     "ReportTemplate",
     "Sample",

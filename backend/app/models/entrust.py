@@ -8,15 +8,17 @@ from app.models.base import BaseMixin
 from app.models.enums import Status
 
 
-def generate_project_no(year: int, seq: int) -> str:
-    """生成项目编号：LAB + 年份(4位) + '-' + 4位流水号，如 LAB2026-0001。
+def generate_entrust_no(year: int, seq: int) -> str:
+    """生成委托单编号：LAB + 年份(4位) + '-' + 4位流水号，如 LAB2026-0001。
 
     规则当前写死；后期改为可配置（编号前缀、分隔符、流水号长度等）。
     """
     return f"LAB{year:04d}-{seq:04d}"
 
 
-class Project(Base, BaseMixin):
+class Entrust(Base, BaseMixin):
+    """委托单/试验项目。数据库表名沿用 project。"""
+
     __tablename__ = "project"
 
     project_no: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
