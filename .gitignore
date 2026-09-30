@@ -41,3 +41,4 @@ Thumbs.db
 
 # === 部署脚本（临时，勿提交）===
 deploy.py
+lims_deploy.tar.gz
