@@ -2,163 +2,53 @@
   <div class="entrust-page">
     <!-- 搜索区域 -->
     <el-card shadow="never" class="search-card">
-      <div class="search-grid">
-        <div class="field">
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">信息查询</span>
+          <div class="header-actions">
+            <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
+            <el-button :icon="Refresh" @click="handleReset">重置</el-button>
+          </div>
+        </div>
+      </template>
+
+      <!-- 高频查询字段（6 列单行）。低频字段暂隐藏：
+           委托人 / 委托部门 / 测试类别 / 班组 / 测试状态 / 测试结论 /
+           计划开始时间 / 上台时间 / 创建时间 / 更新时间 / 更新人 / 检测目的 / 计划审批状态 -->
+      <div class="search-form">
+        <div class="search-field">
           <span class="label">项目编码</span>
           <el-input v-model="searchForm.project_no" placeholder="请输入" clearable />
         </div>
-        <div class="field">
+        <div class="search-field">
           <span class="label">项目名称</span>
           <el-input v-model="searchForm.project_name" placeholder="请输入" clearable />
         </div>
-        <div class="field">
+        <div class="search-field">
           <span class="label">样品型号</span>
           <el-input v-model="searchForm.sample_model" placeholder="请输入" clearable />
         </div>
-        <div class="field">
+        <div class="search-field">
           <span class="label">委托单号</span>
           <el-input v-model="searchForm.entrust_no" placeholder="请输入" clearable />
         </div>
-        <div class="field">
+        <div class="search-field">
           <span class="label">试验编码</span>
           <el-input v-model="searchForm.test_code" placeholder="请输入" clearable />
         </div>
-      </div>
-
-      <div class="search-grid">
-        <div class="field">
+        <div class="search-field">
           <span class="label">实验室</span>
           <el-select v-model="searchForm.lab" placeholder="请选择" clearable>
             <el-option v-for="o in LAB_OPTIONS" :key="o" :label="o" :value="o" />
           </el-select>
         </div>
-        <div class="field">
-          <span class="label">委托人</span>
-          <el-input v-model="searchForm.client" placeholder="请输入" clearable />
-        </div>
-        <div class="field">
-          <span class="label">委托部门</span>
-          <el-input v-model="searchForm.entrust_dept" placeholder="请输入" clearable />
-        </div>
-        <div class="field">
-          <span class="label">测试类别</span>
-          <el-select v-model="searchForm.test_category" placeholder="请选择" clearable>
-            <el-option v-for="o in TEST_CATEGORY_OPTIONS" :key="o" :label="o" :value="o" />
-          </el-select>
-        </div>
-        <div class="field">
-          <span class="label">班组</span>
-          <el-input v-model="searchForm.team" placeholder="请输入" clearable />
-        </div>
-      </div>
-
-      <div v-show="expanded">
-        <div class="search-grid">
-          <div class="field">
-            <span class="label">测试状态</span>
-            <el-select v-model="searchForm.status" placeholder="请选择" clearable>
-              <el-option
-                v-for="o in STATUS_OPTIONS"
-                :key="o.value"
-                :label="o.label"
-                :value="o.value"
-              />
-            </el-select>
-          </div>
-          <div class="field">
-            <span class="label">测试结论</span>
-            <el-select v-model="searchForm.test_conclusion" placeholder="请选择" clearable>
-              <el-option v-for="o in CONCLUSION_OPTIONS" :key="o" :label="o" :value="o" />
-            </el-select>
-          </div>
-          <div class="field">
-            <span class="label">计划开始时间</span>
-            <el-date-picker
-              v-model="searchForm.plan_start_time"
-              type="daterange"
-              value-format="YYYY-MM-DD"
-              range-separator="-"
-              start-placeholder="开始"
-              end-placeholder="结束"
-            />
-          </div>
-          <div class="field">
-            <span class="label">上台时间</span>
-            <el-date-picker
-              v-model="searchForm.onstage_time"
-              type="daterange"
-              value-format="YYYY-MM-DD"
-              range-separator="-"
-              start-placeholder="开始"
-              end-placeholder="结束"
-            />
-          </div>
-          <div class="field">
-            <span class="label">创建时间</span>
-            <el-date-picker
-              v-model="searchForm.created_at"
-              type="daterange"
-              value-format="YYYY-MM-DD"
-              range-separator="-"
-              start-placeholder="开始"
-              end-placeholder="结束"
-            />
-          </div>
-        </div>
-
-        <div class="search-grid">
-          <div class="field">
-            <span class="label">更新时间</span>
-            <el-date-picker
-              v-model="searchForm.updated_at"
-              type="daterange"
-              value-format="YYYY-MM-DD"
-              range-separator="-"
-              start-placeholder="开始"
-              end-placeholder="结束"
-            />
-          </div>
-          <div class="field">
-            <span class="label">更新人</span>
-            <el-input v-model="searchForm.updated_by" placeholder="请输入" clearable />
-          </div>
-        </div>
-
-        <div class="search-grid">
-          <div class="field">
-            <span class="label">检测目的</span>
-            <el-select v-model="searchForm.test_purpose" placeholder="请选择" clearable>
-              <el-option v-for="o in PURPOSE_OPTIONS" :key="o" :label="o" :value="o" />
-            </el-select>
-          </div>
-          <div class="field">
-            <span class="label">计划审批状态</span>
-            <el-select v-model="searchForm.plan_approve_status" placeholder="请选择" clearable>
-              <el-option
-                v-for="o in APPROVE_OPTIONS"
-                :key="o"
-                :label="o"
-                :value="o"
-              />
-            </el-select>
-          </div>
-        </div>
-      </div>
-
-      <div class="search-actions">
-        <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
-        <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        <el-button link type="primary" @click="expanded = !expanded">
-          {{ expanded ? '收起' : '展开' }}
-          <el-icon><component :is="expanded ? ArrowUp : ArrowDown" /></el-icon>
-        </el-button>
       </div>
     </el-card>
 
     <!-- 操作栏 + Tab + 表格 + 分页 -->
     <el-card shadow="never" class="table-card">
       <div class="op-bar">
-        <el-button type="primary" :icon="Plus" @click="openCreate">新增</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleAddCommission">新增委托</el-button>
         <el-button
           type="danger"
           :icon="Delete"
@@ -169,18 +59,10 @@
         </el-button>
       </div>
 
-      <el-tabs v-model="activeTab" type="card" @tab-change="handleTabChange">
-        <el-tab-pane
-          v-for="tab in TABS"
-          :key="tab.value"
-          :label="tab.label"
-          :name="tab.value"
-        />
-      </el-tabs>
-
       <el-table
         v-loading="loading"
         :data="list"
+        height="100%"
         stripe
         border
         @selection-change="handleSelectionChange"
@@ -207,27 +89,40 @@
             <el-tag :type="statusMeta(row.status).type">{{ statusMeta(row.status).label }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="140" fixed="right">
+        <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <div class="op-cell">
+              <el-button link type="primary" @click="handleView(row)">查看</el-button>
+              <el-dropdown trigger="hover" popper-class="op-dropdown-popper" @command="(cmd: string | number | object) => handleCommand(cmd, row)">
+                <el-button link type="primary">
+                  更多
+                  <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                    <el-dropdown-item command="delete" class="is-danger" divided>删除</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
           </template>
         </el-table-column>
       </el-table>
-
-      <div class="table-footer">
-        <span class="total-text">共有 {{ total }} 条数据</span>
-        <el-pagination
-          v-model:current-page="page"
-          v-model:page-size="pageSize"
-          :total="total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="sizes, prev, pager, next, jumper"
-          @current-change="loadList"
-          @size-change="handleSizeChange"
-        />
-      </div>
     </el-card>
+
+    <!-- 底部固定分页 -->
+    <div class="pagination-bar">
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        @current-change="loadList"
+        @size-change="handleSizeChange"
+      />
+    </div>
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
@@ -450,7 +345,8 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ArrowDown, ArrowUp, Delete, Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { useTagsViewStore } from '@/stores/modules/tagsView'
+import { ArrowDown, Delete, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import type {
   MachineInfo,
   EntrustItem,
@@ -459,7 +355,7 @@ import type {
 } from '@/api/entrust'
 import {
   createEntrust,
-  getEntrustList,
+  // getEntrustList, // 后续恢复接口时取消注释
   updateEntrust,
 } from '@/api/entrust'
 
@@ -530,11 +426,6 @@ const STATUS_OPTIONS = (Object.keys(STATUS_META) as EntrustStatus[]).map((value)
   label: STATUS_META[value].label,
 }))
 
-const TABS: { value: string; label: string }[] = [
-  { value: 'all', label: '全部' },
-  ...STATUS_OPTIONS,
-]
-
 const LAB_OPTIONS = ['安全结构实验室', '性能实验室', '能效实验室', '噪音实验室']
 const TEST_CATEGORY_OPTIONS = ['性能测试', '寿命测试', '安全测试', '能效测试']
 const PURPOSE_OPTIONS = ['性能验证', '可靠性验证', '型式试验', '摸底测试']
@@ -546,9 +437,66 @@ const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
 const loading = ref(false)
-const expanded = ref(false)
-const activeTab = ref('all')
 const selectedRows = ref<EntrustItem[]>([])
+
+// ---- 本地随机测试数据（仅 UI 调试，后续恢复接口后移除）----
+const MOCK_STATUSES: EntrustStatus[] = [
+  'draft',
+  'auditing',
+  'audited',
+  'pending',
+  'binding',
+  'onstage',
+  'testing',
+  'report_making',
+  'report_auditing',
+  'report_rejected',
+  'terminated',
+]
+const MOCK_CLIENTS = ['张伟', '李娜', '王强', '赵敏', '陈晨', '刘洋', '孙丽', '周杰']
+const MOCK_DEPTS = ['研发中心', '质量部', '测试部', '产品部']
+const MOCK_TEAMS = ['测试1组', '测试2组', '测试3组']
+const MOCK_MODELS = ['502C', '503C', '601A', '702B', '805D']
+const MOCK_PURPOSES = ['性能验证', '可靠性验证', '型式试验', '摸底测试']
+const MOCK_CATEGORIES = ['性能测试', '寿命测试', '安全测试', '能效测试']
+
+function randomPick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function generateMockData(): EntrustItem[] {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return Array.from({ length: 15 }, (_, i) => {
+    const n = i + 1
+    const dayOffset = Math.floor(Math.random() * 30)
+    const d = new Date(Date.now() - dayOffset * 24 * 60 * 60 * 1000)
+    const timeText = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    return {
+      id: n,
+      project_no: `PMW-CN-2026-${String(n).padStart(4, '0')}`,
+      project_name: `${randomPick(MOCK_MODELS)}${randomPick(MOCK_PURPOSES)}${n}号`,
+      test_code: `PLMKT-2609-${String(1000 + n)}`,
+      test_purpose: randomPick(MOCK_PURPOSES),
+      sample_model: randomPick(MOCK_MODELS),
+      sample_name: `${randomPick(MOCK_MODELS)}样机-${n}`,
+      test_category: randomPick(MOCK_CATEGORIES),
+      entrust_dept: randomPick(MOCK_DEPTS),
+      team: randomPick(MOCK_TEAMS),
+      client: randomPick(MOCK_CLIENTS),
+      status: MOCK_STATUSES[i % MOCK_STATUSES.length],
+      lab: '安全结构实验室',
+      entrust_no: `WT-2026-${String(n).padStart(4, '0')}`,
+      plan_approve_status: n % 2 === 0 ? '已审批' : '待审批',
+      sample_count: n,
+      plan_start_time: timeText,
+      onstage_time: timeText,
+      remark: '',
+      machines: [],
+    }
+  })
+}
+
+const mockItems = generateMockData()
 
 const searchForm = reactive<SearchForm>(emptySearchForm())
 
@@ -626,8 +574,6 @@ function emptyLedgerForm(): LedgerForm {
 
 function buildQuery(): EntrustQuery {
   const query: EntrustQuery = { page: page.value, page_size: pageSize.value }
-  const status = activeTab.value === 'all' ? searchForm.status || undefined : activeTab.value
-  if (status) query.status = status
   ;(Object.keys(searchForm) as (keyof SearchForm)[]).forEach((key) => {
     const value = searchForm[key]
     if (typeof value === 'string' && value) query[key] = value
@@ -638,9 +584,29 @@ function buildQuery(): EntrustQuery {
 async function loadList() {
   loading.value = true
   try {
-    const result = await getEntrustList(buildQuery())
-    list.value = result.items
-    total.value = result.total
+    // 原接口调用（注释保留，后续恢复）：
+    // const result = await getEntrustList(buildQuery())
+    // list.value = result.items
+    // total.value = result.total
+
+    // UI 调试：本地随机数据前端分页
+    const query = buildQuery()
+    let filtered = mockItems
+    if (query.status) {
+      filtered = filtered.filter((it) => it.status === query.status)
+    }
+    const projectNo = String(query.project_no ?? '')
+    if (projectNo) {
+      filtered = filtered.filter((it) => it.project_no.includes(projectNo))
+    }
+    const projectName = String(query.project_name ?? '')
+    if (projectName) {
+      filtered = filtered.filter((it) => it.project_name.includes(projectName))
+    }
+
+    total.value = filtered.length
+    const start = (page.value - 1) * pageSize.value
+    list.value = filtered.slice(start, start + pageSize.value)
   } catch {
     ElMessage.error('加载失败')
   } finally {
@@ -659,11 +625,6 @@ function handleReset() {
   loadList()
 }
 
-function handleTabChange() {
-  page.value = 1
-  loadList()
-}
-
 function handleSizeChange() {
   page.value = 1
   loadList()
@@ -673,11 +634,27 @@ function handleSelectionChange(rows: EntrustItem[]) {
   selectedRows.value = rows
 }
 
-function openCreate() {
-  dialogMode.value = 'create'
-  Object.assign(form, emptyLedgerForm())
-  activeInfoTab.value = 'basic'
-  dialogVisible.value = true
+function handleView(row: EntrustItem) {
+  // TODO: 查看详情（弹窗/抽屉），后续实现
+  ElMessage.info(`查看：${row.project_name}`)
+}
+
+function handleCommand(command: string | number | object, row: EntrustItem) {
+  if (command === 'edit') {
+    openEdit(row)
+  } else if (command === 'delete') {
+    handleDelete(row)
+  }
+}
+
+const tagsViewStore = useTagsViewStore()
+
+function handleAddCommission() {
+  tagsViewStore.openTab({
+    path: '/commission/add',
+    fullPath: '/commission/add',
+    title: '新增委托',
+  })
 }
 
 function openEdit(row: EntrustItem) {
@@ -793,14 +770,78 @@ onMounted(loadList)
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: calc(100vh - 138px);
+  overflow: hidden;
 }
 
-.search-grid {
+.search-card {
+  flex-shrink: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  position: relative;
+  padding-left: 11px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  line-height: 1;
+}
+
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: #409eff;
+  border-radius: 2px;
+}
+
+.search-card :deep(.el-card__header) {
+  padding: 12px 16px;
+}
+
+.search-card :deep(.el-card__body) {
+  padding: 16px 16px 12px;
+}
+
+.search-form {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  column-gap: 16px;
-  row-gap: 14px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0 12px;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.search-field .label {
+  font-size: 14px;
+  color: #606266;
+  line-height: 22px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.search-field :deep(.el-input),
+.search-field :deep(.el-select),
+.search-field :deep(.el-date-editor) {
+  width: 100%;
+}
+
+.search-field :deep(.el-input__wrapper),
+.search-field :deep(.el-select__wrapper) {
+  height: 32px;
 }
 
 .field {
@@ -832,29 +873,86 @@ onMounted(loadList)
   padding-top: 6px;
 }
 
-.search-actions {
+.header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 4px;
+}
+
+.header-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
 }
 
 .op-bar {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
-.table-footer {
+.table-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.table-card :deep(.el-card__body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.table-card :deep(.el-table) {
+  min-height: 0;
+  font-size: 13px;
+}
+
+.table-card :deep(.el-table th.el-table__cell) {
+  background-color: #f5f7fa !important;
+  color: #606266;
+  font-weight: 600;
+  text-align: center !important;
+}
+
+.table-card :deep(.el-table td.el-table__cell) {
+  text-align: center !important;
+  padding: 4px 0;
+}
+
+.table-card :deep(.el-table .cell) {
+  text-align: center;
+}
+
+.table-card :deep(.el-table__row) {
+  height: 40px;
+}
+
+.op-cell {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
+  justify-content: center;
+  gap: 8px;
 }
 
-.total-text {
-  font-size: 13px;
-  color: #909399;
+.op-cell :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+
+.pagination-bar {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  background: #ffffff;
+  padding: 12px 16px;
+  border-top: 1px solid #ebeef5;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .machine-toolbar {
@@ -868,5 +966,11 @@ onMounted(loadList)
 
 .el-col .field {
   margin-bottom: 14px;
+}
+</style>
+
+<style>
+.op-dropdown-popper .el-dropdown-menu__item.is-danger {
+  color: #f56c6c;
 }
 </style>

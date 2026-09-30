@@ -29,6 +29,12 @@ const router = createRouter({
           meta: { title: '委托管理' },
         },
         {
+          path: 'commission/add',
+          name: 'AddCommission',
+          component: () => import('@/views/commission/AddCommission.vue'),
+          meta: { title: '新增委托', hidden: true },
+        },
+        {
           path: 'project',
           name: 'project',
           component: () => import('@/views/project/index.vue'),
