@@ -5,6 +5,7 @@ aiosqlite
 alembic
 pydantic
 pydantic-settings
+python-multipart
 
 # 后期切 MySQL 时，取消下面注释并安装异步驱动：
 # asyncmy
