@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # 文件上传目录
     upload_dir: str = "/data/uploads"
 
+    # 业务数据根目录：按「委托人-试验编码/检测项目」组织存放数据文件
+    data_dir: str = "./data/storage"
+
     # 安全密钥
     secret_key: str = "change-me-to-a-random-secret"
 

@@ -1,5 +1,6 @@
 """模型汇总导入：确保 Alembic 能发现所有表结构。"""
 from app.models.base import BaseMixin, not_deleted
+from app.models.biz_record import BizRecord
 from app.models.enums import (
     DataScope,
     Judgement,
@@ -22,6 +23,7 @@ from app.models.user import User
 __all__ = [
     "BaseMixin",
     "not_deleted",
+    "BizRecord",
     "DataScope",
     "Judgement",
     "ReportStatus",

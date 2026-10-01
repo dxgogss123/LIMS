@@ -355,7 +355,7 @@ import type {
 } from '@/api/entrust'
 import {
   createEntrust,
-  // getEntrustList, // 后续恢复接口时取消注释
+  getEntrustList,
   updateEntrust,
 } from '@/api/entrust'
 
@@ -438,65 +438,6 @@ const page = ref(1)
 const pageSize = ref(10)
 const loading = ref(false)
 const selectedRows = ref<EntrustItem[]>([])
-
-// ---- 本地随机测试数据（仅 UI 调试，后续恢复接口后移除）----
-const MOCK_STATUSES: EntrustStatus[] = [
-  'draft',
-  'auditing',
-  'audited',
-  'pending',
-  'binding',
-  'onstage',
-  'testing',
-  'report_making',
-  'report_auditing',
-  'report_rejected',
-  'terminated',
-]
-const MOCK_CLIENTS = ['张伟', '李娜', '王强', '赵敏', '陈晨', '刘洋', '孙丽', '周杰']
-const MOCK_DEPTS = ['研发中心', '质量部', '测试部', '产品部']
-const MOCK_TEAMS = ['测试1组', '测试2组', '测试3组']
-const MOCK_MODELS = ['502C', '503C', '601A', '702B', '805D']
-const MOCK_PURPOSES = ['性能验证', '可靠性验证', '型式试验', '摸底测试']
-const MOCK_CATEGORIES = ['性能测试', '寿命测试', '安全测试', '能效测试']
-
-function randomPick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
-
-function generateMockData(): EntrustItem[] {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return Array.from({ length: 15 }, (_, i) => {
-    const n = i + 1
-    const dayOffset = Math.floor(Math.random() * 30)
-    const d = new Date(Date.now() - dayOffset * 24 * 60 * 60 * 1000)
-    const timeText = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-    return {
-      id: n,
-      project_no: `PMW-CN-2026-${String(n).padStart(4, '0')}`,
-      project_name: `${randomPick(MOCK_MODELS)}${randomPick(MOCK_PURPOSES)}${n}号`,
-      test_code: `PLMKT-2609-${String(1000 + n)}`,
-      test_purpose: randomPick(MOCK_PURPOSES),
-      sample_model: randomPick(MOCK_MODELS),
-      sample_name: `${randomPick(MOCK_MODELS)}样机-${n}`,
-      test_category: randomPick(MOCK_CATEGORIES),
-      entrust_dept: randomPick(MOCK_DEPTS),
-      team: randomPick(MOCK_TEAMS),
-      client: randomPick(MOCK_CLIENTS),
-      status: MOCK_STATUSES[i % MOCK_STATUSES.length],
-      lab: '安全结构实验室',
-      entrust_no: `WT-2026-${String(n).padStart(4, '0')}`,
-      plan_approve_status: n % 2 === 0 ? '已审批' : '待审批',
-      sample_count: n,
-      plan_start_time: timeText,
-      onstage_time: timeText,
-      remark: '',
-      machines: [],
-    }
-  })
-}
-
-const mockItems = generateMockData()
 
 const searchForm = reactive<SearchForm>(emptySearchForm())
 
@@ -584,29 +525,9 @@ function buildQuery(): EntrustQuery {
 async function loadList() {
   loading.value = true
   try {
-    // 原接口调用（注释保留，后续恢复）：
-    // const result = await getEntrustList(buildQuery())
-    // list.value = result.items
-    // total.value = result.total
-
-    // UI 调试：本地随机数据前端分页
-    const query = buildQuery()
-    let filtered = mockItems
-    if (query.status) {
-      filtered = filtered.filter((it) => it.status === query.status)
-    }
-    const projectNo = String(query.project_no ?? '')
-    if (projectNo) {
-      filtered = filtered.filter((it) => it.project_no.includes(projectNo))
-    }
-    const projectName = String(query.project_name ?? '')
-    if (projectName) {
-      filtered = filtered.filter((it) => it.project_name.includes(projectName))
-    }
-
-    total.value = filtered.length
-    const start = (page.value - 1) * pageSize.value
-    list.value = filtered.slice(start, start + pageSize.value)
+    const result = await getEntrustList(buildQuery())
+    list.value = result.items
+    total.value = result.total
   } catch {
     ElMessage.error('加载失败')
   } finally {

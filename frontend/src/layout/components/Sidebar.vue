@@ -84,7 +84,14 @@ const menus: MenuItem[] = [
       { title: '委托人管理', path: '/user/client', icon: 'UserFilled' },
     ],
   },
-  { title: '系统设置', path: '/settings', icon: 'Setting' },
+  {
+    title: '系统设置',
+    icon: 'Setting',
+    children: [
+      { title: '基础数据', path: '/base-data', icon: 'Coin' },
+      { title: '实验室管理', path: '/lab', icon: 'OfficeBuilding' },
+    ],
+  },
 ]
 </script>
 

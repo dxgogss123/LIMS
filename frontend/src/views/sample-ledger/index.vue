@@ -197,6 +197,94 @@
       </template>
     </el-dialog>
 
+    <!-- 样机入库对话框 -->
+    <el-dialog v-model="entryVisible" title="样机入库" width="720px" top="6vh" destroy-on-close>
+      <div class="entry-top">
+        <el-input v-model="entryForm.test_code" placeholder="请输入试验编码" clearable style="width: 240px" />
+        <el-button type="primary" :loading="extracting" @click="handleExtract">提取</el-button>
+        <el-button type="primary" @click="addSample">新增样机</el-button>
+      </div>
+
+      <div v-for="(s, i) in entryForm.samples" :key="i" class="entry-card">
+        <div class="entry-card__header">
+          <span>第{{ i + 1 }}套样机</span>
+          <el-button link type="danger" @click="removeSample(i)">删除</el-button>
+        </div>
+        <el-form label-width="90px">
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <el-form-item label="样机类型" :required="true">
+                <el-radio-group v-model="s.machine_type">
+                  <el-radio :value="'整机'">整机</el-radio>
+                  <el-radio :value="'内机'">内机</el-radio>
+                  <el-radio :value="'外机'">外机</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="样机名称" :required="true">
+                <el-input v-model="s.name" placeholder="请输入样机名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="样机型号" :required="true">
+                <el-input v-model="s.model" placeholder="请输入样机型号" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="可选实验室" :required="true">
+                <el-select
+                  v-model="s.lab_id"
+                  placeholder="请选择可选实验室"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                >
+                  <el-option v-for="l in entryLabs" :key="l.id" :label="l.name" :value="l.id" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="项目编码" :required="true">
+                <el-input v-model="s.project_code" placeholder="请输入项目编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="试验编码" :required="true">
+                <el-input v-model="s.test_code" placeholder="请输入试验编码" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="委托人" :required="true">
+                <el-select
+                  v-model="s.client_id"
+                  filterable
+                  remote
+                  :remote-method="searchClients"
+                  :loading="clientLoading"
+                  placeholder="请选择"
+                  clearable
+                  style="width: 100%"
+                >
+                  <el-option v-for="c in clientOptions" :key="c.id" :label="c.name" :value="c.id" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注">
+                <el-input v-model="s.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
+
+      <template #footer>
+        <el-button @click="entryVisible = false">取消</el-button>
+        <el-button type="primary" :loading="entrySaving" @click="handleEntrySubmit">确定</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 流转记录对话框 -->
     <el-dialog v-model="recordVisible" title="流转记录" width="70%" top="8vh" destroy-on-close>
       <el-table :data="flowRecords" border size="small">
@@ -223,6 +311,16 @@ import {
   getSampleList,
   updateSample,
 } from '@/api/sample-ledger'
+import type { ClientItem } from '@/api/client'
+import { getClientList } from '@/api/client'
+import {
+  createSampleEntry,
+  extractByTestCode,
+  fetchEntryLabs,
+  type EntryLabOption,
+  type SampleEntryForm,
+  type SampleEntryItem,
+} from '@/api/inventory'
 
 type TagType = 'primary' | 'success' | 'info' | 'warning' | 'danger'
 
@@ -348,9 +446,9 @@ function handleSizeChange() {
 }
 
 function openCreate() {
-  dialogMode.value = 'create'
-  Object.assign(form, emptySampleForm())
-  dialogVisible.value = true
+  entryForm.test_code = ''
+  entryForm.samples = [emptySampleCard()]
+  entryVisible.value = true
 }
 
 function openEdit(row: SampleItem) {
@@ -389,6 +487,120 @@ function remoteSearchProject(_query: string) {
   projectOptions.value = []
 }
 
+// ---------- 样机入库 ----------
+
+const entryVisible = ref(false)
+const entrySaving = ref(false)
+const extracting = ref(false)
+
+const entryLabs = ref<EntryLabOption[]>([])
+const clientOptions = ref<ClientItem[]>([])
+const clientLoading = ref(false)
+
+const entryForm = reactive<SampleEntryForm>({
+  test_code: '',
+  samples: [emptySampleCard()],
+})
+
+function emptySampleCard(): SampleEntryItem {
+  return {
+    machine_type: '整机',
+    name: '',
+    model: '',
+    lab_id: null,
+    project_code: '',
+    test_code: '',
+    client_id: null,
+    remark: '',
+  }
+}
+
+function addSample() {
+  entryForm.samples.push(emptySampleCard())
+}
+
+function removeSample(index: number) {
+  entryForm.samples.splice(index, 1)
+}
+
+function searchClients(keyword: string) {
+  clientLoading.value = true
+  getClientList({ page: 1, page_size: 20, keyword })
+    .then((res) => {
+      clientOptions.value = res.items
+    })
+    .finally(() => {
+      clientLoading.value = false
+    })
+}
+
+async function handleExtract() {
+  const code = entryForm.test_code.trim()
+  if (!code) {
+    ElMessage.warning('请输入试验编码')
+    return
+  }
+  extracting.value = true
+  try {
+    const list = await extractByTestCode(code)
+    if (list && list.length) {
+      entryForm.samples = list.map((s) => ({ ...emptySampleCard(), ...s }))
+      ElMessage.success('提取成功')
+    } else {
+      ElMessage.warning('未找到对应试验数据')
+    }
+  } finally {
+    extracting.value = false
+  }
+}
+
+async function handleEntrySubmit() {
+  const samples = entryForm.samples
+  if (samples.length === 0) {
+    ElMessage.warning('请至少添加一套样机')
+    return
+  }
+  for (let i = 0; i < samples.length; i++) {
+    const s = samples[i]
+    if (!s.name) {
+      ElMessage.warning(`第 ${i + 1} 套样机：请输入样机名称`)
+      return
+    }
+    if (!s.model) {
+      ElMessage.warning(`第 ${i + 1} 套样机：请输入样机型号`)
+      return
+    }
+    if (s.lab_id == null) {
+      ElMessage.warning(`第 ${i + 1} 套样机：请选择可选实验室`)
+      return
+    }
+    if (!s.project_code) {
+      ElMessage.warning(`第 ${i + 1} 套样机：请输入项目编码`)
+      return
+    }
+    if (!s.test_code) {
+      ElMessage.warning(`第 ${i + 1} 套样机：请输入试验编码`)
+      return
+    }
+    if (s.client_id == null) {
+      ElMessage.warning(`第 ${i + 1} 套样机：请选择委托人`)
+      return
+    }
+  }
+  entrySaving.value = true
+  try {
+    await createSampleEntry({
+      test_code: entryForm.test_code,
+      samples: entryForm.samples,
+    })
+    ElMessage.success('入库成功')
+    entryVisible.value = false
+    loadList()
+  } finally {
+    entrySaving.value = false
+  }
+}
+
 async function handleSubmit() {
   if (!form.sample_no || !form.name || !form.project_no || !form.status) {
     ElMessage.warning('请填写样机编码、样机名称、所属委托单和状态')
@@ -421,7 +633,12 @@ async function handleSubmit() {
   }
 }
 
-onMounted(loadList)
+onMounted(() => {
+  loadList()
+  fetchEntryLabs().then((list) => {
+    entryLabs.value = list
+  })
+})
 </script>
 
 <style scoped>
@@ -533,6 +750,33 @@ onMounted(loadList)
 
 .op-bar-right {
   margin-left: auto;
+}
+
+.entry-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.entry-card {
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.entry-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.entry-card :deep(.el-form-item__label) {
+  white-space: nowrap;
 }
 
 .table-footer {
