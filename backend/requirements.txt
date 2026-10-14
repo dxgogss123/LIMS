@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+aiosqlite
+alembic
+pydantic
+pydantic-settings
+python-multipart
+bcrypt>=4.0
+python-jose[cryptography]
+
+# 后期切 MySQL 时，取消下面注释并安装异步驱动：
+# asyncmy
